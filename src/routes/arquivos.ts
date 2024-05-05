@@ -1,9 +1,15 @@
-import { FastifyInstance } from "fastify";
+import { fastify,FastifyInstance } from "fastify";
 import { knex } from "../database";
-import { z } from 'zod';
-import crypto from "node:crypto";
+import fs from "fs";
+import fastifyMultipart from "@fastify/multipart";
+import pump from "pump";
+import { z } from "zod";
+
 
 export async function arquivosRoutes(app: FastifyInstance){
+
+    app.register(fastifyMultipart);
+
     app.get('/', async (request, reply) => {
 
         const arquivos = await knex('arquivo').select('*');
@@ -13,24 +19,26 @@ export async function arquivosRoutes(app: FastifyInstance){
     
     //Define rota post para arquivo
     app.post('/', async (request, reply) => {
-        const createTransactionBodySchema = z.object({
-            nome: z.string(),
-            arquivo: z.string(),
-            tipo: z.string(),
-            id_sinistro: z.string()
-        })
-    
-        const { nome, arquivo, tipo, id_sinistro } = createTransactionBodySchema.parse(request.body);
+
+        //Espera arquivo via requisicao multipart
+        const arquivo = await request.file();
+        const horario = new Date().getTime();
+        const caminhoArquivo = `${horario}_${arquivo?.filename}`;
+        const storedFile = fs.createWriteStream('./uploads/'+caminhoArquivo);
+        await pump(arquivo?.file, storedFile);
     
         await knex('arquivo').insert({
             id: crypto.randomUUID(),
-            nome,
-            arquivo,
-            tipo,
-            id_sinistro
+            nome: arquivo?.fieldname,
+            arquivo: caminhoArquivo,
+            tipo: 'request.body.tipo',
+            id_sinistro: crypto.randomUUID()
         })
-    
-        return reply.status(201).send();
+
+
+
+        return reply.status(201).send("Arquivo carregado!")
+
     })
     
 }
