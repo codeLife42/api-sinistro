@@ -1,21 +1,30 @@
-import fastify from 'fastify';
-import { env } from './env';
-import { clientesRoutes } from './routes/clientes';
-import { segurosRoutes } from './routes/seguros';
-import { sinistrosRoutes } from './routes/sinistros';
-import { arquivosRoutes } from './routes/arquivos';
+import fastify from "fastify";
+import { env } from "./env";
+import { clientesRoutes } from "./routes/clientes";
+import { segurosRoutes } from "./routes/seguros";
+import { sinistrosRoutes } from "./routes/sinistros";
+import { arquivosRoutes } from "./routes/arquivos";
+import cors from "@fastify/cors";
+import { sinistroClienteRoutes } from "./routes/sinistrocliente";
 
 //Cria instancia fastify
 export const app = fastify();
+
+app.register(cors, { origin: "*" });
+
 app.register(clientesRoutes, {
-    prefix: 'clientes',
-})
+  prefix: "clientes",
+});
 app.register(segurosRoutes, {
-    prefix: 'seguros'
-})
+  prefix: "seguros",
+});
 app.register(sinistrosRoutes, {
-    prefix: 'sinistros'
-})
+  prefix: "sinistros",
+});
 app.register(arquivosRoutes, {
-    prefix: 'arquivos'
-})
+  prefix: "arquivos",
+});
+
+app.register(sinistroClienteRoutes, {
+  prefix: "sinistrocliente",
+});
