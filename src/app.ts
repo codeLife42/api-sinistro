@@ -6,6 +6,7 @@ import { sinistrosRoutes } from "./routes/sinistros";
 import { arquivosRoutes } from "./routes/arquivos";
 import cors from "@fastify/cors";
 import { sinistroClienteRoutes } from "./routes/sinistrocliente";
+import { seguroClienteRoutes } from "./routes/segurocliente";
 
 //Cria instancia fastify
 export const app = fastify();
@@ -24,7 +25,9 @@ app.register(sinistrosRoutes, {
 app.register(arquivosRoutes, {
   prefix: "arquivos",
 });
-
 app.register(sinistroClienteRoutes, {
   prefix: "sinistrocliente",
+});
+app.register(seguroClienteRoutes, {
+  prefix: "segurocliente",
 });
