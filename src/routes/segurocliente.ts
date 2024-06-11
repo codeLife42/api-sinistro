@@ -10,10 +10,12 @@ export async function seguroClienteRoutes(app: FastifyInstance) {
         "cliente.carteira as cliente_carteira",
         "seguro.valor_segurado as valor_segurado",
         "seguro.status as seguro_status",
-        "seguro.nome as seguro_nome"
+        "seguro.nome as seguro_nome",
+        "sinistro.status as sinistro_status"
       )
       .table("cliente")
-      .innerJoin("seguro", "cliente.id", "=", "seguro.id_cliente");
+      .innerJoin("seguro", "cliente.id", "=", "seguro.id_cliente")
+      .innerJoin("sinistro", "sinistro.id_cliente", "=", "cliente.id");
     return { seguroCliente };
   });
 }
