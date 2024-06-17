@@ -5,6 +5,7 @@ export async function seguroClienteRoutes(app: FastifyInstance) {
   app.get("/", async (request, reply) => {
     const seguroCliente = await knex
       .select(
+        "cliente.id as cliente_id",
         "cliente.nome as cliente_nome",
         "cliente.cpf as cliente_cpf",
         "cliente.carteira as cliente_carteira",
