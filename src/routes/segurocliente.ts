@@ -12,7 +12,8 @@ export async function seguroClienteRoutes(app: FastifyInstance) {
         "seguro.valor_segurado as valor_segurado",
         "seguro.status as seguro_status",
         "seguro.nome as seguro_nome",
-        "sinistro.status as sinistro_status"
+        "sinistro.status as sinistro_status",
+        "sinistro.id as sinistro_id"
       )
       .table("cliente")
       .innerJoin("seguro", "cliente.id", "=", "seguro.id_cliente")

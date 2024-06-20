@@ -36,4 +36,10 @@ export async function sinistrosRoutes(app: FastifyInstance) {
 
     return reply.status(201).send();
   });
+
+  app.patch("/", async (request, reply) => {
+    const createTransactionBodySchema = z.object({
+      id_sinistro: z.string()
+    });
+  });
 }
