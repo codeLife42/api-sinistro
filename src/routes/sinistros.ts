@@ -37,9 +37,16 @@ export async function sinistrosRoutes(app: FastifyInstance) {
     return reply.status(201).send();
   });
 
+  //Faz o Patch quando o usuario clica em novo sinistro
   app.patch("/", async (request, reply) => {
-    const createTransactionBodySchema = z.object({
-      id_sinistro: z.string()
-    });
+    const id_sinistro = request.body;
+
+    console.log(id_sinistro);
+
+    await knex("sinistro")
+      .where("id", "=", id_sinistro)
+      .update("status", "Aguardando documentacao");
+
+    return reply.status(201).send();
   });
 }

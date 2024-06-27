@@ -39,7 +39,6 @@ export async function clientesRoutes(app: FastifyInstance) {
   app.get("/:id", async (request, reply) => {
     const id_cliente = request.params.id as any;
     const cliente = await knex("cliente").select("*").where("id", id_cliente);
-    console.log(cliente);
     return reply.status(201).send(cliente);
   });
 }
