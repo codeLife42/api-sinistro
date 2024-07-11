@@ -38,7 +38,17 @@ export async function clientesRoutes(app: FastifyInstance) {
 
   app.get("/:id", async (request, reply) => {
     const id_cliente = request.params.id as any;
-    const cliente = await knex("cliente").select("*").where("id", id_cliente);
-    return reply.status(201).send(cliente);
+    try {
+      const cliente = await knex("cliente")
+        .select("*")
+        .innerJoin("sinistro", "cliente.id", "=", "sinistro.id_cliente")
+        .where("cliente.id", id_cliente);
+
+      return reply.status(201).send(cliente);
+    } catch (error) {
+      console.log(error);
+
+      reply.status(500).json({ error: "Erro interno do servidor." });
+    }
   });
 }
