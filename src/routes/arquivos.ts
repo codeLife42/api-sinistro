@@ -1,12 +1,25 @@
 import { fastify, FastifyInstance } from "fastify";
 import { knex } from "../database";
 import fs from "fs";
-import fastifyMultipart from "@fastify/multipart";
-import pump from "pump";
-import { z } from "zod";
+import multer from "fastify-multer";
 
 export async function arquivosRoutes(app: FastifyInstance) {
-  app.register(fastifyMultipart, { attachFieldsToBody: true });
+  app.register(multer.contentParser);
+
+  //Cria onde sera armazenado o arquivo e sua extensao
+  const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, "./uploads/");
+    },
+    filename: function (req, file, cb) {
+      const horario = new Date().getTime();
+      const caminhoArquivo = `${horario}_${file.originalname}`;
+
+      cb(null, `${caminhoArquivo}`);
+    },
+  });
+
+  const upload = multer({ storage });
 
   app.get("/", async (request, reply) => {
     const arquivos = await knex("arquivo").select("*");
@@ -15,44 +28,35 @@ export async function arquivosRoutes(app: FastifyInstance) {
   });
 
   //Define rota post para arquivo
-  app.post("/", async (request, reply) => {
-    await new Promise((resolve) => {
-      setTimeout(resolve, 1000);
-    });
-
-    await new Promise((resolve, reject) => {
+  app.post(
+    "/",
+    { preHandler: upload.single("file") },
+    async (request, reply) => {
       try {
-        const { file, documentType, idSinistro }: any = request.body;
-        //Espera arquivo via requisicao multipart
-        const arquivo = await request.file();
-        const horario = new Date().getTime();
-        const caminhoArquivo = `${horario}_${arquivo?.filename}`;
-        const storedFile = fs.createWriteStream("./uploads/" + caminhoArquivo);
-        /**
-      console.log(file);
-      console.log(file.filename);
-      console.log(documentType.value);
-      console.log(idSinistro.value);
-      */
-        console.log(file);
+        const { file, documentType, idSinistro, fileName }: any = request.body;
 
-        await pump(file, storedFile);
+        const caminhoArquivo = (request?.file as Express.Multer.File).filename;
 
-        /**
-      await knex("arquivo").insert({
-        id: crypto.randomUUID(),
-        nome: file.filename,
-        arquivo: caminhoArquivo,
-        tipo: documentType.value,
-        id_sinistro: idSinistro.value,
-      });
+        if (!upload) {
+          return reply.status(400).send("Nenhum arquivo recebido");
+        }
+        console.log(caminhoArquivo);
+        console.log(documentType);
+        console.log(idSinistro);
+        console.log(fileName);
 
-      */
-        return reply.status(201).send("Arquivo carregado!");
+        await knex("arquivo").insert({
+          id: crypto.randomUUID(),
+          nome: fileName,
+          arquivo: caminhoArquivo,
+          tipo: documentType,
+          id_sinistro: idSinistro,
+        });
+
+        reply.status(201).send("Arquivo carregado!");
       } catch (error) {
-        resolve(1000);
-        console.log("Erro ao carregar arquivo", error);
+        return reply.status(501).send(`Erro no servidor: ` + error);
       }
-    });
-  });
+    }
+  );
 }
