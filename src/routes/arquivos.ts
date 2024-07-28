@@ -2,8 +2,28 @@ import { fastify, FastifyInstance } from "fastify";
 import { knex } from "../database";
 import fs from "fs";
 import multer from "fastify-multer";
+import { z } from "zod";
 
 export async function arquivosRoutes(app: FastifyInstance) {
+  app.get("/", async (request, reply) => {
+    const { id_sinistro, tipo_arquivo }: any = request.query;
+
+    console.log(id_sinistro);
+    console.log(tipo_arquivo);
+
+    try {
+      const consultaArquivoCliente = await knex("arquivo")
+        .select("*")
+        .innerJoin("sinistro", "arquivo.id_sinistro", "=", "sinistro.id")
+        .where("sinistro.id", "=", id_sinistro)
+        .where("tipo", "=", tipo_arquivo);
+
+      return consultaArquivoCliente;
+    } catch (error) {
+      console.log("Erro ao consultar arquivo:", error);
+    }
+  });
+
   app.register(multer.contentParser);
 
   //Cria onde sera armazenado o arquivo e sua extensao
@@ -20,12 +40,6 @@ export async function arquivosRoutes(app: FastifyInstance) {
   });
 
   const upload = multer({ storage });
-
-  app.get("/", async (request, reply) => {
-    const arquivos = await knex("arquivo").select("*");
-
-    return { arquivos };
-  });
 
   //Define rota post para arquivo
   app.post(

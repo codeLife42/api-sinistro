@@ -40,8 +40,20 @@ export async function clientesRoutes(app: FastifyInstance) {
     const id_cliente = request.params.id as any;
     try {
       const cliente = await knex("cliente")
-        .select("*")
+        .select(
+          "arquivo.arquivo as arquivo",
+          "cliente.carteira as carteira",
+          "cliente.cpf as cpf",
+          "arquivo.id as id",
+          "sinistro.id_cliente as id_cliente",
+          "arquivo.id_sinistro as id_sinistro",
+          "sinistro.id_usuario as id_usuario",
+          "cliente.nome as nome",
+          "sinistro.status as status",
+          "arquivo.tipo as tipo"
+        )
         .innerJoin("sinistro", "cliente.id", "=", "sinistro.id_cliente")
+        .innerJoin("arquivo", "arquivo.id_sinistro", "=", "sinistro.id")
         .where("cliente.id", id_cliente);
 
       return reply.status(201).send(cliente);
