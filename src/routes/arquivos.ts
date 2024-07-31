@@ -8,7 +8,7 @@ export async function arquivosRoutes(app: FastifyInstance) {
   app.get("/", async (request, reply) => {
     const { id_sinistro, tipo_arquivo }: any = request.query;
 
-    console.log(id_sinistro);
+    console.log("ID Sinistro: ", id_sinistro);
     console.log(tipo_arquivo);
 
     try {
@@ -17,6 +17,8 @@ export async function arquivosRoutes(app: FastifyInstance) {
         .innerJoin("sinistro", "arquivo.id_sinistro", "=", "sinistro.id")
         .where("sinistro.id", "=", id_sinistro)
         .where("tipo", "=", tipo_arquivo);
+
+      console.log(consultaArquivoCliente);
 
       return consultaArquivoCliente;
     } catch (error) {
