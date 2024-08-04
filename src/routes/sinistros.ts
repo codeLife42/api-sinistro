@@ -50,12 +50,18 @@ export async function sinistrosRoutes(app: FastifyInstance) {
 
   //Faz o Patch quando o usuario envia o sinistro para analise
   app.patch("/:id", async (request, reply) => {
-    const id_sinistro = request.body.params as any;
+    const id_usuario = request.params.id;
+
+    const { id_sinistro, status } = request.body as any;
+
+    console.log(status);
+
+    console.log(id_sinistro);
 
     await knex("sinistro")
-      .where("id", "=", id_sinistro.id_sinistro)
-      .update("status", "Documentacao enviada");
+      .where("id", "=", id_sinistro)
+      .update("status", status);
 
-    return reply.status(201).send("Enviado para analise");
+    return reply.status(201).send("Atualizado com sucesso");
   });
 }
